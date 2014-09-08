@@ -1,0 +1,25 @@
+{
+  "name": "deedpoll",
+  "version": "0.1.0",
+  "author": "David Chambers <dc@davidchambers.me>",
+  "description": "Flag incorrectly named identifiers",
+  "bin": "./bin/deedpoll",
+  "licenses": [
+    {
+      "type": "WTFPL",
+      "url": "https://raw.githubusercontent.com/davidchambers/deedpoll/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/davidchambers/deedpoll.git"
+  },
+  "dependencies": {
+    "commander": "2.3.x",
+    "esprima": "1.2.x",
+    "ordered-ast-traverse": "0.1.x"
+  },
+  "devDependencies": {
+    "xyz": "0.4.x"
+  }
+}

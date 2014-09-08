@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var fs = require('fs');
+
+var program = require('commander');
+var esprima = require('esprima');
+var traverse = require('ordered-ast-traverse');
+
+
+program
+.version(require('../package.json').version)
+.option(
+  '-r, --rename <bad>:<good>',
+  'specify an identifier mapping such as --rename i:idx',
+  function(spec, memo) {
+    var parts = spec.split(':');
+    memo[parts[0]] = parts[1];
+    return memo;
+  },
+  {}
+)
+.parse(process.argv);
+
+
+var exitCode = 0;
+
+program.args.forEach(function(filename) {
+  traverse(esprima.parse(fs.readFileSync(filename), {loc: true}), {
+    pre: function(node) {
+      if (node.type === 'Identifier' &&
+          Object.prototype.hasOwnProperty.call(program.rename, node.name)) {
+        exitCode += 1;
+        process.stderr.write(
+          'Expected "' + program.rename[node.name] + '" at ' + filename +
+          ':' + node.loc.start.line + ':' + node.loc.start.column +
+          ' (found "' + node.name + '")\n');
+      }
+    },
+  });
+});
+
+if (exitCode === 0) {
+  process.stderr.write('No identifiers to rename\n');
+}
+process.exit(exitCode);
