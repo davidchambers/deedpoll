@@ -18,3 +18,8 @@ release-major release-minor release-patch:
 .PHONY: setup
 setup:
 	$(NPM) install
+
+
+.PHONY: test
+test:
+	@./test

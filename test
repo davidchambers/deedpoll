@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+declare -i passes=0
+declare -i failures=0
+
+eq() {
+  if [ "$1" == "$2" ] ; then
+    let passes++
+  else
+    let failures++
+    printf '\nEXPECTED:\n%s\nRECEIVED:\n%s\n' "$1" "$2" >&2
+  fi
+}
+
+tmp="$(mktemp -d "$TMPDIR/deedpoll.XXXXXXXXXX")"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+cat >"$tmp/example.js" <<END
+function findIndex(array, el) {
+  for (var i = 0, len = array.length; i < len; i += 1) {
+    if (array[i] === el) {
+      return i;
+    }
+  }
+  return -1;
+}
+END
+
+bin/deedpoll -r array:list -r i:idx -r index:idx -- "$tmp/example.js" \
+  1>"$tmp/stdout" \
+  2>"$tmp/stderr"
+
+eq "$?" 8
+eq "$(cat "$tmp/stdout")" ""
+eq "$(cat "$tmp/stderr")" "$(cat <<END
+Expected "list" at $tmp/example.js:1:19 (found "array")
+Expected "idx" at $tmp/example.js:2:11 (found "i")
+Expected "list" at $tmp/example.js:2:24 (found "array")
+Expected "idx" at $tmp/example.js:2:38 (found "i")
+Expected "idx" at $tmp/example.js:2:47 (found "i")
+Expected "list" at $tmp/example.js:3:8 (found "array")
+Expected "idx" at $tmp/example.js:3:14 (found "i")
+Expected "idx" at $tmp/example.js:4:13 (found "i")
+END
+)"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+rm -r -- "$tmp"
+
+printf '\n%s/%s assertions satisfied\n\n' $passes $((passes + failures))
+exit $failures
