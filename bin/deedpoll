@@ -28,8 +28,8 @@ var exitCode = 0;
 
 program.args.forEach(function(filename) {
   traverse(esprima.parse(fs.readFileSync(filename), {loc: true}), {
-    pre: function(node) {
-      if (node.type === 'Identifier' &&
+    pre: function(node, parent, prop) {
+      if (['id', 'params'].indexOf(prop) >= 0 &&
           Object.prototype.hasOwnProperty.call(program.rename, node.name)) {
         exitCode += 1;
         process.stderr.write(

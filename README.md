@@ -26,17 +26,11 @@ directives and any number of filenames (optionally separated by `--`):
 $ deedpoll --rename array:list --rename i:idx --rename index:idx -- example.js
 Expected "list" at example.js:1:19 (found "array")
 Expected "idx" at example.js:2:11 (found "i")
-Expected "list" at example.js:2:24 (found "array")
-Expected "idx" at example.js:2:38 (found "i")
-Expected "idx" at example.js:2:47 (found "i")
-Expected "list" at example.js:3:8 (found "array")
-Expected "idx" at example.js:3:14 (found "i")
-Expected "idx" at example.js:4:13 (found "i")
 ```
 
 The exit code indicates the number of incorrectly named identifiers:
 
 ```console
 $ echo $?
-8
+2
 ```
