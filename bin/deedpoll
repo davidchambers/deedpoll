@@ -36,7 +36,7 @@ program.args.forEach(function(filename, idx) {
     sources[idx] = source;
     if (Object.keys(sources).length === program.args.length) {
       sources.forEach(function(source, idx) {
-        traverse(esprima.parse(source, {loc: true}), {
+        traverse(esprima.parse(source.replace(/^#!.*/, ''), {loc: true}), {
           pre: function(node, parent, prop) {
             if (['id', 'params'].indexOf(prop) >= 0 &&
                 Object.prototype.hasOwnProperty.call(program.rename,

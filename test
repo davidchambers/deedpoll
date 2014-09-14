@@ -96,6 +96,24 @@ END
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+cat >"$tmp/executable" <<END
+#!/usr/bin/env node
+var a;
+END
+
+bin/deedpoll -r a:alpha -- "$tmp/executable" \
+  1>"$tmp/stdout" \
+  2>"$tmp/stderr"
+
+eq "$?" 1
+eq "$(cat "$tmp/stdout")" ""
+eq "$(cat "$tmp/stderr")" "$(cat <<END
+Expected "alpha" at $tmp/executable:2:4 (found "a")
+END
+)"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 rm -r -- "$tmp"
 
 printf '\n%s/%s assertions satisfied\n\n' $passes $((passes + failures))
