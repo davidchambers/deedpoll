@@ -60,6 +60,42 @@ END
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+echo "var a;" | bin/deedpoll -r a:alpha \
+  1>"$tmp/stdout" \
+  2>"$tmp/stderr"
+
+eq "$?" 1
+eq "$(cat "$tmp/stdout")" ""
+eq "$(cat "$tmp/stderr")" "$(cat <<END
+Expected "alpha" at [stdin]:1:4 (found "a")
+END
+)"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+cat >"$tmp/before.js" <<END
+var a;
+END
+
+cat >"$tmp/after.js" <<END
+var a;
+END
+
+echo "var a;" | bin/deedpoll -r a:alpha -- "$tmp/before.js" - "$tmp/after.js" \
+  1>"$tmp/stdout" \
+  2>"$tmp/stderr"
+
+eq "$?" 3
+eq "$(cat "$tmp/stdout")" ""
+eq "$(cat "$tmp/stderr")" "$(cat <<END
+Expected "alpha" at $tmp/before.js:1:4 (found "a")
+Expected "alpha" at [stdin]:1:4 (found "a")
+Expected "alpha" at $tmp/after.js:1:4 (found "a")
+END
+)"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 rm -r -- "$tmp"
 
 printf '\n%s/%s assertions satisfied\n\n' $passes $((passes + failures))
