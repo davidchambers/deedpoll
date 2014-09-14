@@ -24,24 +24,48 @@ program
 .parse(process.argv);
 
 
-var exitCode = 0;
+// If no filenames are given, read from stdin.
+if (program.args.length === 0) program.args.push('-');
 
-program.args.forEach(function(filename) {
-  traverse(esprima.parse(fs.readFileSync(filename), {loc: true}), {
-    pre: function(node, parent, prop) {
-      if (['id', 'params'].indexOf(prop) >= 0 &&
-          Object.prototype.hasOwnProperty.call(program.rename, node.name)) {
-        exitCode += 1;
-        process.stderr.write(
-          'Expected "' + program.rename[node.name] + '" at ' + filename +
-          ':' + node.loc.start.line + ':' + node.loc.start.column +
-          ' (found "' + node.name + '")\n');
+
+var exitCode = 0, sources = [];
+
+program.args.forEach(function(filename, idx) {
+  var callback = function(err, source) {
+    if (err != null) throw err;
+    sources[idx] = source;
+    if (Object.keys(sources).length === program.args.length) {
+      sources.forEach(function(source, idx) {
+        traverse(esprima.parse(source, {loc: true}), {
+          pre: function(node, parent, prop) {
+            if (['id', 'params'].indexOf(prop) >= 0 &&
+                Object.prototype.hasOwnProperty.call(program.rename,
+                                                     node.name)) {
+              exitCode += 1;
+              process.stderr.write(
+                'Expected "' + program.rename[node.name] + '" at ' +
+                program.args[idx].replace(/^-$/, '[stdin]') +
+                ':' + node.loc.start.line + ':' + node.loc.start.column +
+                ' (found "' + node.name + '")\n');
+            }
+          },
+        });
+      });
+      if (exitCode === 0) {
+        process.stderr.write('No identifiers to rename\n');
       }
-    },
-  });
+      process.exit(exitCode);
+    }
+  };
+  if (filename === '-') {
+    var input = '';
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('readable', function() {
+      var chunk = process.stdin.read();
+      if (chunk != null) input += chunk;
+    });
+    process.stdin.on('end', function() { callback(null, input); });
+  } else {
+    fs.readFile(filename, {encoding: 'utf8'}, callback);
+  }
 });
-
-if (exitCode === 0) {
-  process.stderr.write('No identifiers to rename\n');
-}
-process.exit(exitCode);
