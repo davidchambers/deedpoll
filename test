@@ -31,7 +31,7 @@ bin/deedpoll -r array:list -r i:idx -r index:idx -- "$tmp/example.js" \
   1>"$tmp/stdout" \
   2>"$tmp/stderr"
 
-eq "$?" 2
+eq "$?" 1
 eq "$(cat "$tmp/stdout")" ""
 eq "$(cat "$tmp/stderr")" "$(cat <<END
 Expected "list" at $tmp/example.js:1:19 (found "array")
@@ -85,7 +85,7 @@ echo "var a;" | bin/deedpoll -r a:alpha -- "$tmp/before.js" - "$tmp/after.js" \
   1>"$tmp/stdout" \
   2>"$tmp/stderr"
 
-eq "$?" 3
+eq "$?" 1
 eq "$(cat "$tmp/stdout")" ""
 eq "$(cat "$tmp/stderr")" "$(cat <<END
 Expected "alpha" at $tmp/before.js:1:4 (found "a")
@@ -117,4 +117,4 @@ END
 rm -r -- "$tmp"
 
 printf '\n%s/%s assertions satisfied\n\n' $passes $((passes + failures))
-exit $failures
+((failures == 0))
