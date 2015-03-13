@@ -28,9 +28,4 @@ Expected "list" at example.js:1:19 (found "array")
 Expected "idx" at example.js:2:11 (found "i")
 ```
 
-The exit code indicates the number of incorrectly named identifiers:
-
-```console
-$ echo $?
-2
-```
+The exit code is 0 if there are no incorrectly named identifiers, 1 otherwise.
