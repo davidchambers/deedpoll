@@ -20,6 +20,6 @@
     "ordered-ast-traverse": "0.1.x"
   },
   "devDependencies": {
-    "xyz": "0.5.x"
+    "xyz": "1.0.x"
   }
 }
